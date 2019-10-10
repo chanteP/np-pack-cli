@@ -11,7 +11,7 @@ module.exports = function(source) {
 };
 
 function moduleContent(source) {
-  const blob = base64toBlob(wasmBase64);
+  const buffer = base64toBuffer(wasmBase64);
 
   module.exports = function(imports) {
     // TODO imports
@@ -22,12 +22,15 @@ function moduleContent(source) {
         }
       }
     };
-    return Promise.resolve(blob.arrayBuffer())
+    return Promise.resolve(buffer)
       .then(buffer => WebAssembly.instantiate(buffer, imports))
       .then(({ instance = {}, module } = {}) => ({ exports: instance.exports, instance, module }));
   };
-
-  function base64toBlob(base64, type) {
+  
+  function base64toBuffer(base64, type) {
+    if(typeof Buffer !== 'undefined'){
+      return Buffer.from(base64, 'base64');
+    }
     // 将base64转为Unicode规则编码
     (bstr = atob(base64, type)), (n = bstr.length), (u8arr = new Uint8Array(n));
     while (n--) {
@@ -35,7 +38,7 @@ function moduleContent(source) {
     }
     return new Blob([u8arr], {
       type
-    });
+    }).arrayBuffer();
   }
 }
 

@@ -17,7 +17,7 @@ program
   .option('--sourcemap <sourcemap>', "sourcemap, development:cheap-module-eval-source-map, production:''", 'auto')
   .option('--extensions <extensions>', 'add other extensions with url-loader, --extensions .wav,.mp3 ', '.wav,.mp3');
 program.parse(process.argv);
-program.source = program.source || program.args[0] || 'test/entry.js';
+program.source = program.source || program.args[0];
 if (!program.source) {
   program.outputHelp(txt => chalk.gray(txt));
   process.exit(1);
@@ -35,7 +35,6 @@ console.log(
   ].join('\n')
 );
 
-console.time('cost');
 webpack(config, (err, stats) => {
   const message = stats.toString({
     colors: true,
@@ -49,7 +48,6 @@ webpack(config, (err, stats) => {
   }
   console.log(message);
   console.log(chalk.grey('==================='));
-  console.timeEnd('cost');
   console.log(program.watch ? chalk.cyan('big brother is watching you') : chalk.green('done'));
 });
 
