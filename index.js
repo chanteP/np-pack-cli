@@ -17,7 +17,8 @@ program
   .option('--sourcemap <sourcemap>', "sourcemap, development:cheap-module-eval-source-map, production:''", 'auto')
   .option('--extensions <extensions>', 'add other extensions with url-loader, --extensions .wav,.mp3 ', '.wav,.mp3');
 program.parse(process.argv);
-program.source = program.source || program.args[0];
+program.source = program.source || program.args[0] || 'test/entry.js';
+// TODO list support
 if (!program.source) {
   program.outputHelp(txt => chalk.gray(txt));
   process.exit(1);
@@ -83,7 +84,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
           loader: 'babel-loader',
           exclude: path.resolve(cwd, '/node_modules'),
           options: {
-            presets: ['@babel/env', '@babel/preset-typescript']
+            presets: [getLocal('./node_modules/@babel/preset-env'), getLocal('./node_modules/@babel/preset-typescript')]
           }
         },
         {
@@ -91,7 +92,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
           loader: 'babel-loader',
           exclude: path.resolve(cwd, '/node_modules'),
           options: {
-            presets: ['@babel/env', '@babel/preset-react']
+            presets: [getLocal('./node_modules/@babel/preset-env'), getLocal('./node_modules/@babel/preset-react')]
           }
         },
         {
@@ -158,10 +159,15 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
       extensions: ['.js', '.mjs', '.ts', '.vue', '.jsx', '.wasm', ...extensions.split(',')]
     },
     resolveLoader: {
-      modules: [path.resolve(__dirname, './loaders/'), 'node_modules']
+      modules: [getLocal('./loaders/'), getLocal('./node_modules'), 'node_modules']
     },
     optimization: {
       mangleWasmImports: true
     }
   };
+}
+
+
+function getLocal(moduleName){
+  return path.resolve(__dirname, moduleName);
 }
