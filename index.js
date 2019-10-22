@@ -3,6 +3,7 @@ const path = require('path');
 const webpack = require('webpack');
 const chalk = require('chalk');
 const program = require('commander');
+require("babel-polyfill");
 // plugins
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 // const
@@ -17,7 +18,7 @@ program
   .option('--sourcemap <sourcemap>', "sourcemap, development:cheap-module-eval-source-map, production:''", 'auto')
   .option('--extensions <extensions>', 'add other extensions with url-loader, --extensions .wav,.mp3 ', '.wav,.mp3');
 program.parse(process.argv);
-program.source = program.source || program.args[0] || 'test/entry.js';
+program.source = program.source || program.args[0];
 // TODO list support
 if (!program.source) {
   program.outputHelp(txt => chalk.gray(txt));

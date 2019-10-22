@@ -1,6 +1,6 @@
 {
   "name": "np-pack-cli",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "",
   "bin": {
     "pack": "./index.js"
@@ -27,6 +27,7 @@
     "@babel/preset-typescript": "^7.6.0",
     "assemblyscript": "AssemblyScript/assemblyscript",
     "babel-loader": "^8.0.6",
+    "babel-polyfill": "^6.26.0",
     "chalk": "^2.4.2",
     "commander": "^3.0.2",
     "css-loader": "^3.2.0",
