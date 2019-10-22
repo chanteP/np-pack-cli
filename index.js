@@ -85,7 +85,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
           loader: 'babel-loader',
           exclude: path.resolve(cwd, '/node_modules'),
           options: {
-            presets: [getLocal('./node_modules/@babel/preset-env'), getLocal('./node_modules/@babel/preset-typescript')]
+            presets: [require.resolve('@babel/preset-env'), require.resolve('@babel/preset-typescript')]
           }
         },
         {
@@ -93,7 +93,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
           loader: 'babel-loader',
           exclude: path.resolve(cwd, '/node_modules'),
           options: {
-            presets: [getLocal('./node_modules/@babel/preset-env'), getLocal('./node_modules/@babel/preset-react')]
+            presets: [require.resolve('@babel/preset-env'), require.resolve('@babel/preset-react')]
           }
         },
         {
