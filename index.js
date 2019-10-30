@@ -3,7 +3,7 @@ const path = require('path');
 const webpack = require('webpack');
 const chalk = require('chalk');
 const program = require('commander');
-require("babel-polyfill");
+require('babel-polyfill');
 // plugins
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 // const
@@ -33,8 +33,8 @@ console.log(
     chalk.grey(`isWatch\t: ${config.watch} `),
     chalk.grey(`source\t: ${program.source} `),
     chalk.grey(`output\t: ${path.resolve(config.output.path, config.output.filename)} `),
-    chalk.grey('===================')
-  ].join('\n')
+    chalk.grey('==================='),
+  ].join('\n'),
 );
 
 webpack(config, (err, stats) => {
@@ -42,7 +42,7 @@ webpack(config, (err, stats) => {
     colors: true,
     modules: false,
     children: false,
-    chunks: false
+    chunks: false,
   });
   if (err || stats.hasErrors()) {
     console.error(err ? chalk.red(err) : message);
@@ -60,22 +60,22 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
     watch,
     devtool: sourcemap === 'auto' ? (mode === 'development' && 'cheap-module-eval-source-map') || '' : sourcemap,
     entry: {
-      [path.basename(source, '.js')]: path.resolve(cwd, source)
+      [path.basename(source, '.js')]: path.resolve(cwd, source),
     },
     output: {
       path: path.join(cwd, './'),
-      filename: output
+      filename: output,
     },
     module: {
       defaultRules: [
         {
           type: 'javascript/auto',
-          resolve: {}
+          resolve: {},
         },
         {
           test: /\.json$/i,
-          type: 'json'
-        }
+          type: 'json',
+        },
         // 去除了wasm的处理
       ],
 
@@ -85,20 +85,39 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
           loader: 'babel-loader',
           exclude: path.resolve(cwd, '/node_modules'),
           options: {
-            presets: [require.resolve('@babel/preset-env'), require.resolve('@babel/preset-typescript')]
-          }
+            presets: [require.resolve('@babel/preset-env'), require.resolve('@babel/preset-typescript')],
+          },
+        },
+        // { test: /\.tsx$/, loader: 'babel-loader!ts-loader', options: { appendTsxSuffixTo: [/TSX\.vue$/] } },
+        {
+          test: /\.tsx$/,
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                presets: [require.resolve('@babel/preset-env')],
+                plugins: [require.resolve('babel-plugin-transform-vue-jsx')]
+              },
+            },
+            {
+              loader: 'ts-loader',
+              options: {
+                appendTsxSuffixTo: [/TSX\.vue$/],
+              },
+            },
+          ],
         },
         {
           test: /\.(jsx)$/,
           loader: 'babel-loader',
           exclude: path.resolve(cwd, '/node_modules'),
           options: {
-            presets: [require.resolve('@babel/preset-env'), require.resolve('@babel/preset-react')]
-          }
+            presets: [require.resolve('@babel/preset-env')],
+          },
         },
         {
           test: /\.(vue)$/,
-          loader: 'vue-loader'
+          loader: 'vue-loader',
         },
         {
           test: /\.(css|scss|sass)$/,
@@ -108,8 +127,8 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
             // Translates CSS into CommonJS
             'css-loader',
             // Compiles Sass to CSS
-            'sass-loader'
-          ]
+            'sass-loader',
+          ],
         },
         {
           test: /\.(jpe?g|png|gif|svg)$/i,
@@ -117,10 +136,10 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
             {
               loader: 'url-loader',
               options: {
-                limit: 10000
-              }
-            }
-          ]
+                limit: 10000,
+              },
+            },
+          ],
         },
         {
           test: /\.(woff2?|eot|ttf|otf)$/i,
@@ -128,14 +147,14 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
             {
               loader: 'url-loader',
               options: {
-                limit: 10000
-              }
-            }
-          ]
+                limit: 10000,
+              },
+            },
+          ],
         },
         {
           test: /\.wasm$/,
-          loader: 'wasm-loader'
+          loader: 'wasm-loader',
         },
         {
           test: /\.asm$/,
@@ -143,32 +162,31 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
             // wasm to promise
             'wasm-loader',
             // asm to wasm
-            'asm-loader'
-          ]
+            'asm-loader',
+          ],
         },
         {
           test: new RegExp(`\.(${extensions.replace(/\./g, '').replace(',', '|')})$`, 'i'),
           loader: 'url-loader',
           query: {
-            limit: 10000
-          }
-        }
-      ]
+            limit: 10000,
+          },
+        },
+      ],
     },
     plugins: [new VueLoaderPlugin()],
     resolve: {
-      extensions: ['.js', '.mjs', '.ts', '.vue', '.jsx', '.wasm', ...extensions.split(',')]
+      extensions: ['.js', '.ts', '.mjs', '.ts', '.vue', '.jsx', '.tsx', '.wasm', ...extensions.split(',')],
     },
     resolveLoader: {
-      modules: [getLocal('./loaders/'), getLocal('./node_modules'), 'node_modules']
+      modules: [getLocal('./loaders/'), getLocal('./node_modules'), 'node_modules'],
     },
     optimization: {
-      mangleWasmImports: true
-    }
+      mangleWasmImports: true,
+    },
   };
 }
 
-
-function getLocal(moduleName){
+function getLocal(moduleName) {
   return path.resolve(__dirname, moduleName);
 }
