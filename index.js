@@ -6,6 +6,26 @@ const program = require('commander');
 require('babel-polyfill');
 // plugins
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const babelCommonPlugins = [
+    require.resolve('@babel/plugin-proposal-optional-chaining'),
+    require.resolve('@babel/plugin-proposal-nullish-coalescing-operator'),
+    [
+        require.resolve('@babel/plugin-proposal-decorators'),
+        {
+            legacy: true,
+        },
+    ],
+    [
+        require.resolve('@babel/plugin-proposal-class-properties'),
+        {
+            loose: true,
+        },
+    ],
+    require.resolve('@babel/plugin-proposal-function-sent'),
+    require.resolve('@babel/plugin-proposal-export-namespace-from'),
+    require.resolve('@babel/plugin-proposal-numeric-separator'),
+    require.resolve('@babel/plugin-proposal-throw-expressions'),
+]
 // const
 const cwd = process.cwd();
 
@@ -14,7 +34,7 @@ program
   .option('-s, --source <src>', 'source file path')
   .option('-o, --output <output>', 'output file path', `./temp/[name].[chunkhash].js`)
   .option('-w, --watch', 'watch', false)
-  .option('--mode <mode>', 'mode, default to development', 'development')
+  .option('--mode <mode>', 'mode', 'development')
   .option('--sourcemap <sourcemap>', "sourcemap, development:cheap-module-eval-source-map, production:''", 'auto')
   .option('--extensions <extensions>', 'add other extensions with url-loader, --extensions .wav,.mp3 ', '.wav,.mp3');
 program.parse(process.argv);
@@ -86,7 +106,8 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
           exclude: path.resolve(cwd, '/node_modules'),
           options: {
             presets: [require.resolve('@babel/preset-env'), require.resolve('@babel/preset-typescript')],
-          },
+            plugins: babelCommonPlugins
+        },
         },
         // { test: /\.tsx$/, loader: 'babel-loader!ts-loader', options: { appendTsxSuffixTo: [/TSX\.vue$/] } },
         {
@@ -96,7 +117,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
               loader: 'babel-loader',
               options: {
                 presets: [require.resolve('@babel/preset-env')],
-                plugins: [require.resolve('babel-plugin-transform-vue-jsx')]
+                plugins: babelCommonPlugins
               },
             },
             {
@@ -113,6 +134,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
           exclude: path.resolve(cwd, '/node_modules'),
           options: {
             presets: [require.resolve('@babel/preset-env')],
+            plugins: babelCommonPlugins
           },
         },
         {
@@ -176,7 +198,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
     },
     plugins: [new VueLoaderPlugin()],
     resolve: {
-      extensions: ['.js', '.ts', '.mjs', '.ts', '.vue', '.jsx', '.tsx', '.wasm', ...extensions.split(',')],
+      extensions: ['.js', '.ts', '.mjs', '.vue', '.jsx', '.tsx', '.wasm', ...extensions.split(',')],
     },
     resolveLoader: {
       modules: [getLocal('./loaders/'), getLocal('./node_modules'), 'node_modules'],
