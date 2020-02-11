@@ -24,7 +24,7 @@
     "@babel/core": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
     "@babel/preset-react": "^7.0.0",
-    "@babel/preset-typescript": "^7.6.0",
+    "@babel/preset-typescript": "7.8.3",
     "assemblyscript": "AssemblyScript/assemblyscript",
     "babel-loader": "^8.0.6",
     "babel-polyfill": "^6.26.0",

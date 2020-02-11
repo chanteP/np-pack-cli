@@ -14,6 +14,7 @@ program
   .option('-s, --source <src>', 'source file path')
   .option('-o, --output <output>', 'output file path', `./temp/[name].[chunkhash].js`)
   .option('-w, --watch', 'watch', false)
+  .option('--target <target>', 'target', 'web')
   .option('--mode <mode>', 'mode, default to development', 'development')
   .option('--sourcemap <sourcemap>', "sourcemap, development:cheap-module-eval-source-map, production:''", 'auto')
   .option('--extensions <extensions>', 'add other extensions with url-loader, --extensions .wav,.mp3 ', '.wav,.mp3');
@@ -164,7 +165,8 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
     },
     optimization: {
       mangleWasmImports: true
-    }
+    },
+    target: program.target
   };
 }
 
