@@ -81,7 +81,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
         watch,
         devtool: sourcemap === 'auto' ? (mode === 'development' && 'cheap-module-eval-source-map') || '' : sourcemap,
         entry: {
-            [path.basename(source, '.js')]: path.resolve(cwd, source),
+            [path.basename(source, '.js')]: [require.resolve('babel-polyfill'), path.resolve(cwd, source)],
         },
         output: {
             path: path.join(cwd, './'),
