@@ -202,7 +202,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap }) {
             extensions: ['.js', '.ts', '.mjs', '.vue', '.jsx', '.tsx', '.wasm', ...extensions.split(',')],
         },
         resolveLoader: {
-            modules: [getLocal('./loaders/'), getLocal('./node_modules'), 'node_modules'],
+            modules: [getLocal('./loaders/'), getLocal('./node_modules'), getLocal('../../node_modules'), 'node_modules'],
         },
         optimization: {
             mangleWasmImports: true,
