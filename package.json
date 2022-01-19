@@ -1,6 +1,6 @@
 {
   "name": "np-pack-cli",
-  "version": "1.1.3",
+  "version": "2.0.0-alpha.1",
   "description": "",
   "bin": {
     "pack": "./index.js"
@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/chanteP/np-pack-cli#readme",
   "dependencies": {
-    "@babel/core": "^7.6.2",
+    "@babel/core": "^7.16.7",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-decorators": "^7.8.3",
     "@babel/plugin-proposal-export-namespace-from": "^7.8.3",
@@ -30,9 +30,9 @@
     "@babel/plugin-proposal-numeric-separator": "^7.8.3",
     "@babel/plugin-proposal-optional-chaining": "^7.8.3",
     "@babel/plugin-proposal-throw-expressions": "^7.8.3",
-    "@babel/preset-env": "^7.6.2",
+    "@babel/preset-env": "^7.16.8",
     "@babel/preset-react": "^7.0.0",
-    "@babel/preset-typescript": "7.8.3",
+    "@babel/preset-typescript": "^7.16.7",
     "assemblyscript": "AssemblyScript/assemblyscript",
     "babel-loader": "^8.0.6",
     "babel-polyfill": "^6.26.0",
@@ -46,11 +46,11 @@
     "reflect-metadata": "^0.1.13",
     "sass-loader": "^8.0.0",
     "style-loader": "^1.0.0",
-    "terser-webpack-plugin": "^5.3.0",
+    "terser-webpack-plugin": "4",
     "url-loader": "^2.2.0",
     "vue-loader": "^15.7.1",
     "vue-template-compiler": "^2.6.10",
-    "webpack": "^4.41.0",
+    "webpack": "4",
     "webpack-bundle-analyzer": "^4.5.0"
   }
 }

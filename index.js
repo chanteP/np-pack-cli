@@ -6,30 +6,22 @@ const program = require('commander');
 
 // plugins ----------------------------------------
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const DefaultRawPlugin = require('./plugins/default-raw-plugin');
-const {BundleAnalyzerPlugin} = require('webpack-bundle-analyzer');
+const DefaultHtmlPlugin = require('./plugins/default-html-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const TerserPlugin = require('terser-webpack-plugin');
+const packageJson = require('./package.json');
 
 const babelCommonPresetEnv = [
     getLocalDependency('@babel/preset-env'),
-        {
-            modules: false,
-            useBuiltIns: 'entry',
-            corejs: 3,
-            browserslistEnv: {
-                "production": [
-                    "> 10%"
-                ],
-                "modern": [
-                    "last 1 chrome version",
-                    "last 1 firefox version"
-                ],
-                "ssr": [
-                    "node 12"
-                ]
-            }
-        },
-    ];
+    {
+        modules: false,
+        useBuiltIns: 'entry',
+        corejs: 3,
+        targets: "last 2 versions, not dead",
+    },
+];
+
+// 开启polyfill后使用
 const babelCommonPlugins = [
     getLocalDependency('@babel/plugin-proposal-optional-chaining'),
     getLocalDependency('@babel/plugin-proposal-nullish-coalescing-operator'),
@@ -58,28 +50,57 @@ program
     .option('-s, --source <src>', 'source file path')
     .option('-o, --output <output>', 'output file path', `./.temp/[name].[chunkhash].js`)
     .option('-w, --watch', 'watch', false)
-    .option('--html', 'use html wrap', false)
+    .option('--polyfill', 'use polyfill', false)
+    .option('--html [port]', 'preview in html without output. default port: 9999', false)
     .option('--analize', 'use webpack-bundle-analyzer', false)
     .option('--target <target>', 'target', 'web')
     .option('--mode <mode>', 'mode', 'development')
-    .option('--sourcemap <sourcemap>', "sourcemap, development:cheap-module-eval-source-map, production:''", 'auto')
-    .option('--extensions <extensions>', 'add other extensions with url-loader, --extensions .wav,.mp3 ', '.wav,.mp3');
+    .option('--extensions <extensions>', 'extensions with url-loader, --extensions .wav,.mp3 ', '.wav,.mp3')
+    .option('--raw <raw>', 'extensions with raw-loader, --raw .txt,.md ', '.txt,.md')
+    .option('--sourcemap <sourcemap>', "sourcemap, default@development:cheap-module-eval-source-map; @production:''", 'auto')
+    ;
+
 program.parse(process.argv);
-program.source = program.source || program.args[0] || './demo/source.ts';
+program.source = program.source || program.args[0];
+
+
+
+program.source = './demo/source.js';
+// program.html = 9999;
+
+
 // TODO list support
 if (!program.source) {
+    console.log(chalk.gray('version: ', packageJson.version));
+
+    console.log(chalk.gray('Examples:'));
+    console.log(chalk.gray(' pack ./somePath/index.ts'));
+    console.log(chalk.gray(' pack ./somePath/index.ts --html'));
+    console.log(chalk.gray(' pack ./somePath/index.ts -o ./dist/[name].[chunkhash].js'));
+    console.log(chalk.gray(' pack ./somePath/index.ts -o ./dist/[name].[chunkhash].js --analize'));
+
+    console.log('\n');
+
     program.outputHelp(txt => chalk.gray(txt));
+
     process.exit(1);
 }
 
+program.watch = program.watch || !!program.html;
+program.html = program.analize ? null : program.html;
+program.html = program.html ? /^\d+$/.test(program.html + '') ? +program.html : 9999 : null;
+
 const config = getConfig(program);
+
+
 console.log(
     [
         chalk.grey('==================='),
-        chalk.grey(`mode\t: ${config.mode} `),
-        chalk.grey(`isWatch\t: ${config.watch} `),
-        chalk.grey(`source\t: ${program.source} `),
-        chalk.grey(`output\t: ${path.resolve(config.output.path, config.output.filename)} `),
+        chalk.grey(`mode     \t: ${config.mode} `),
+        chalk.grey(`isWatch  \t: ${config.watch} `),
+        chalk.grey(`polyfill \t: ${program.polyfill} `),
+        chalk.grey(`source   \t: ${program.source} `),
+        chalk.grey(`output   \t: ${path.resolve(config.output.path, config.output.filename)} `),
         chalk.grey('==================='),
     ].join('\n'),
 );
@@ -101,15 +122,20 @@ webpack(config, (err, stats) => {
 });
 
 // config
-function getConfig({ source, output, watch, mode, extensions, sourcemap, analize }) {
+function getConfig({ source, output, watch, mode, extensions, sourcemap, analize, polyfill, html, raw }) {
+    const babelPlugins = polyfill ? babelCommonPlugins : [];
+    const polyfillEntryInset = polyfill ? [
+        getLocalDependency('core-js/stable'),
+        getLocalDependency('reflect-metadata'),
+    ] : [];
+
     return {
         mode,
         watch,
         devtool: sourcemap === 'auto' ? (mode === 'development' && 'cheap-module-eval-source-map') || '' : sourcemap,
         entry: {
             [path.basename(source, '.js')]: [
-                getLocalDependency('core-js/stable'), 
-                getLocalDependency('reflect-metadata'), 
+                ...polyfillEntryInset,
                 path.resolve(cwd, source),
             ],
         },
@@ -137,7 +163,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                     exclude: path.resolve(cwd, '/node_modules'),
                     options: {
                         presets: [babelCommonPresetEnv, getLocalDependency('@babel/preset-typescript')],
-                        plugins: babelCommonPlugins,
+                        plugins: babelPlugins,
                     },
                 },
                 // { test: /\.tsx$/, loader: 'babel-loader!ts-loader', options: { appendTsxSuffixTo: [/TSX\.vue$/] } },
@@ -148,7 +174,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                             loader: 'babel-loader',
                             options: {
                                 presets: [babelCommonPresetEnv],
-                                plugins: babelCommonPlugins,
+                                plugins: babelPlugins,
                             },
                         },
                         {
@@ -165,7 +191,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                     exclude: path.resolve(cwd, '/node_modules'),
                     options: {
                         presets: [babelCommonPresetEnv],
-                        plugins: babelCommonPlugins,
+                        plugins: babelPlugins,
                     },
                 },
                 {
@@ -226,7 +252,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                     },
                 },
                 {
-                    test: /(\s\S)+/,
+                    test: new RegExp(`\.(${raw.replace(/\./g, '').replace(',', '|')})$`, 'i'),
                     loader: 'raw-loader',
                 },
             ],
@@ -237,13 +263,13 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                 'process.env': {},
             }),
             new VueLoaderPlugin(),
-            new DefaultRawPlugin(),
             analize && new BundleAnalyzerPlugin({
                 analyzerPort: 0,
             }),
+            html && new DefaultHtmlPlugin({ port: html }),
         ].filter(d => !!d),
         resolve: {
-            extensions: ['.js', '.ts', '.mjs', '.vue', '.jsx', '.tsx', '.wasm', ...extensions.split(',')],
+            extensions: ['.js', '.ts', '.mjs', '.vue', '.jsx', '.tsx', '.wasm'],
         },
         resolveLoader: {
             modules: [getLocal('./loaders/'), getLocal('./node_modules'), getLocal('../../node_modules'), 'node_modules'],
@@ -274,6 +300,6 @@ function getLocal(moduleName) {
     return path.resolve(__dirname, moduleName);
 }
 
-function getLocalDependency(moduleName){
+function getLocalDependency(moduleName) {
     return require.resolve(moduleName);
 }
