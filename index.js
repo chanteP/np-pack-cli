@@ -63,12 +63,6 @@ program
 program.parse(process.argv);
 program.source = program.source || program.args[0];
 
-
-
-program.source = './demo/source.js';
-// program.html = 9999;
-
-
 // TODO list support
 if (!program.source) {
     console.log(chalk.gray('version: ', packageJson.version));
