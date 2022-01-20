@@ -4,9 +4,9 @@ const fs = require('fs');
 const http = require('http');
 const os = require('os');
 
+const titleHolder = '${TITLE}';
 const scriptSrcHolder = '${PACK_SOURCE}';
 const htmlTemplatePath = './template.html';
-
 
 class Service {
     constructor(port, options) {
@@ -17,7 +17,7 @@ class Service {
         this.entry = this.parseEntry();
 
         const entryPath = `/${this.entry}.js`;
-        const rootHtml = this.template.replace(scriptSrcHolder, entryPath);
+        const rootHtml = this.template.replace(titleHolder, this.entry).replace(scriptSrcHolder, entryPath);
 
         this.server = http.createServer((request, response) => {
             try {
@@ -51,11 +51,8 @@ class Service {
     }
 
     // TODO 可能也不会todo，手动刷多好
-    update() {
-
-    }
+    update() {}
 }
-
 
 function getLocalIP() {
     const networkInterfaces = os.networkInterfaces();
