@@ -5,11 +5,13 @@ const chalk = require('chalk');
 const program = require('commander');
 
 // plugins ----------------------------------------
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const VueLoaderPlugin = require('vue-loader/dist/pluginWebpack4').default;
 const DefaultHtmlPlugin = require('./plugins/default-html-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const TerserPlugin = require('terser-webpack-plugin');
 const packageJson = require('./package.json');
+const { existsSync } = require('fs');
+const { resolve } = require('path');
 
 const babelCommonPresetEnv = [
     getLocalDependency('@babel/preset-env'),
@@ -17,7 +19,7 @@ const babelCommonPresetEnv = [
         modules: false,
         useBuiltIns: 'entry',
         corejs: 3,
-        targets: "last 2 versions, not dead",
+        targets: 'last 2 versions, not dead',
     },
 ];
 
@@ -57,8 +59,11 @@ program
     .option('--mode <mode>', 'mode', 'development')
     .option('--extensions <extensions>', 'extensions with url-loader, --extensions .wav,.mp3 ', '.wav,.mp3')
     .option('--raw <raw>', 'extensions with raw-loader, --raw .txt,.md ', '.txt,.md')
-    .option('--sourcemap <sourcemap>', "sourcemap, default@development:cheap-module-eval-source-map; @production:''", 'auto')
-    ;
+    .option(
+        '--sourcemap <sourcemap>',
+        "sourcemap, default@development:cheap-module-eval-source-map; @production:''",
+        'auto',
+    );
 
 program.parse(process.argv);
 program.source = program.source || program.args[0];
@@ -75,17 +80,16 @@ if (!program.source) {
 
     console.log('\n');
 
-    program.outputHelp(txt => chalk.gray(txt));
+    program.outputHelp((txt) => chalk.gray(txt));
 
     process.exit(1);
 }
 
 program.watch = program.watch || !!program.html;
 program.html = program.analize ? null : program.html;
-program.html = program.html ? /^\d+$/.test(program.html + '') ? +program.html : 9999 : null;
+program.html = program.html ? (/^\d+$/.test(program.html + '') ? +program.html : 9999) : null;
 
 const config = getConfig(program);
-
 
 console.log(
     [
@@ -118,20 +122,20 @@ webpack(config, (err, stats) => {
 // config
 function getConfig({ source, output, watch, mode, extensions, sourcemap, analize, polyfill, html, raw }) {
     const babelPlugins = polyfill ? babelCommonPlugins : [];
-    const polyfillEntryInset = polyfill ? [
-        getLocalDependency('core-js/stable'),
-        getLocalDependency('reflect-metadata'),
-    ] : [];
+    const polyfillEntryInset = polyfill
+        ? [getLocalDependency('core-js/stable'), getLocalDependency('reflect-metadata')]
+        : [];
+
+    const tsConfigFile = existsSync(resolve(cwd, './tsconfig.json'))
+        ? resolve(cwd, './tsconfig.json')
+        : resolve(__dirname, './tsconfig.json');
 
     return {
         mode,
         watch,
         devtool: sourcemap === 'auto' ? (mode === 'development' && 'cheap-module-eval-source-map') || '' : sourcemap,
         entry: {
-            [path.basename(source, '.js')]: [
-                ...polyfillEntryInset,
-                path.resolve(cwd, source),
-            ],
+            [path.basename(source, '.js')]: [...polyfillEntryInset, path.resolve(cwd, source)],
         },
         output: {
             path: path.join(cwd, './'),
@@ -152,13 +156,29 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
 
             rules: [
                 {
+                    test: /\.(vue)$/,
+                    loader: 'vue-loader',
+                },
+                {
                     test: /\.(js|mjs|ts)$/,
-                    loader: 'babel-loader',
+                    use: [
+                        {
+                            loader: 'babel-loader',
+                            options: {
+                                presets: [babelCommonPresetEnv, getLocalDependency('@babel/preset-typescript')],
+                                plugins: babelPlugins,
+                            },
+                        },
+                        {
+                            loader: 'ts-loader',
+                            options: {
+                                configFile: tsConfigFile,
+                                appendTsSuffixTo: [/\.vue$/],
+                                transpileOnly: true,
+                            },
+                        },
+                    ],
                     exclude: path.resolve(cwd, '/node_modules'),
-                    options: {
-                        presets: [babelCommonPresetEnv, getLocalDependency('@babel/preset-typescript')],
-                        plugins: babelPlugins,
-                    },
                 },
                 // { test: /\.tsx$/, loader: 'babel-loader!ts-loader', options: { appendTsxSuffixTo: [/TSX\.vue$/] } },
                 {
@@ -187,10 +207,6 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                         presets: [babelCommonPresetEnv],
                         plugins: babelPlugins,
                     },
-                },
-                {
-                    test: /\.(vue)$/,
-                    loader: 'vue-loader',
                 },
                 {
                     test: /\.(css|scss|sass)$/,
@@ -257,34 +273,41 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                 'process.env': {},
             }),
             new VueLoaderPlugin(),
-            analize && new BundleAnalyzerPlugin({
-                analyzerPort: 0,
-            }),
+            analize &&
+                new BundleAnalyzerPlugin({
+                    analyzerPort: 0,
+                }),
             html && new DefaultHtmlPlugin({ port: html }),
-        ].filter(d => !!d),
+        ].filter((d) => !!d),
         resolve: {
             extensions: ['.js', '.ts', '.mjs', '.vue', '.jsx', '.tsx', '.wasm'],
         },
         resolveLoader: {
-            modules: [getLocal('./loaders/'), getLocal('./node_modules'), getLocal('../../node_modules'), 'node_modules'],
+            modules: [
+                getLocal('./loaders/'),
+                getLocal('./node_modules'),
+                getLocal('../../node_modules'),
+                'node_modules',
+            ],
         },
         optimization: {
             mangleWasmImports: true,
             minimizer: [
-                mode === 'production' && new TerserPlugin({
-                    extractComments: false,
-                    parallel: true,
-                    terserOptions: {
-                        compress: {
-                            // pure_funcs: isRelease ? ['console.log', 'console.info'] : [],
+                mode === 'production' &&
+                    new TerserPlugin({
+                        extractComments: false,
+                        parallel: true,
+                        terserOptions: {
+                            compress: {
+                                // pure_funcs: isRelease ? ['console.log', 'console.info'] : [],
+                            },
+                            output: {
+                                comments: false,
+                            },
+                            safari10: true,
                         },
-                        output: {
-                            comments: false,
-                        },
-                        safari10: true,
-                    },
-                }),
-            ].filter(d => !!d),
+                    }),
+            ].filter((d) => !!d),
         },
         target: program.target,
     };
