@@ -24,7 +24,13 @@ class DefaultHtmlPlugin {
             resources: this.fileContentMap,
         });
 
-        this.server.openBrowser();
+        this.server.listen(() => {
+            try{
+                this.server.openBrowser();
+            }catch{
+            }
+        });
+
     }
 
     apply(compiler) {

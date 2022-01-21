@@ -5,7 +5,7 @@ const chalk = require('chalk');
 const program = require('commander');
 
 // plugins ----------------------------------------
-const VueLoaderPlugin = require('vue-loader/dist/pluginWebpack4').default;
+const VueLoaderPlugin = require('vue-loader/dist/pluginWebpack5').default;
 const DefaultHtmlPlugin = require('./plugins/default-html-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const TerserPlugin = require('terser-webpack-plugin');
@@ -104,14 +104,19 @@ console.log(
 );
 
 webpack(config, (err, stats) => {
+    if (err) {
+        console.error(chalk.red(err));
+        return;
+    }
     const message = stats.toString({
         colors: true,
         modules: false,
         children: false,
         chunks: false,
     });
-    if (err || stats.hasErrors()) {
-        console.error(err ? chalk.red(err) : message);
+
+    if (stats.hasErrors()) {
+        console.error(chalk.red(message));
         return;
     }
     console.log(message);
@@ -133,7 +138,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
     return {
         mode,
         watch,
-        devtool: sourcemap === 'auto' ? (mode === 'development' && 'cheap-module-eval-source-map') || '' : sourcemap,
+        devtool: sourcemap === 'auto' ? (mode === 'development' && 'eval-cheap-module-source-map') || '' : sourcemap,
         entry: {
             [path.basename(source, '.js')]: [...polyfillEntryInset, path.resolve(cwd, source)],
         },
@@ -257,8 +262,8 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                 {
                     test: new RegExp(`\.(${extensions.replace(/\./g, '').replace(',', '|')})$`, 'i'),
                     loader: 'url-loader',
-                    query: {
-                        limit: 10000,
+                    options: {
+                        limit: 8192,
                     },
                 },
                 {

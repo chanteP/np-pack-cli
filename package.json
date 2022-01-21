@@ -1,6 +1,6 @@
 {
   "name": "np-pack-cli",
-  "version": "2.0.0-alpha.10",
+  "version": "2.0.0-alpha.20",
   "description": "",
   "bin": {
     "pack": "./index.js"
@@ -42,16 +42,16 @@
     "core-js": "^3.20.3",
     "css-loader": "^3.2.0",
     "html-loader": "^0.5.5",
-    "node-sass": "7",
+    "node-sass": "^7.0.1",
     "raw-loader": "^4.0.2",
     "reflect-metadata": "^0.1.13",
-    "sass-loader": "^8.0.0",
+    "sass-loader": "^12.4.0",
     "style-loader": "^1.0.0",
     "terser-webpack-plugin": "4",
     "ts-loader": "8",
-    "url-loader": "^2.2.0",
+    "url-loader": "^4.1.1",
     "vue-loader": "16",
-    "webpack": "4",
+    "webpack": "5",
     "webpack-bundle-analyzer": "^4.5.0"
   },
   "devDependencies": {

@@ -34,8 +34,10 @@ class Service {
             }
             response.end();
         });
+    }
 
-        this.server.listen(this.port);
+    listen(callback) {
+        this.server.listen(this.port, callback);
     }
 
     parseEntry() {
