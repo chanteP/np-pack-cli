@@ -58,6 +58,7 @@ program
     .option('--target <target>', 'target', 'web')
     .option('--mode <mode>', 'mode', 'development')
     .option('--extensions <extensions>', 'extensions with url-loader, --extensions .wav,.mp3 ', '.wav,.mp3')
+    .option('--files <files>', 'extensions with file-loader, --files .node ', '.node')
     .option('--raw <raw>', 'extensions with raw-loader, --raw .txt,.md ', '.txt,.md')
     .option(
         '--sourcemap <sourcemap>',
@@ -94,11 +95,13 @@ const config = getConfig(program);
 console.log(
     [
         chalk.grey('==================='),
+        chalk.gray(`version  \t: ${packageJson.version}`),
+        chalk.grey('==================='),
         chalk.grey(`mode     \t: ${config.mode} `),
         chalk.grey(`isWatch  \t: ${config.watch} `),
         chalk.grey(`polyfill \t: ${program.polyfill} `),
         chalk.grey(`source   \t: ${program.source} `),
-        chalk.grey(`output   \t: ${path.resolve(config.output.path, config.output.filename)} `),
+        chalk.grey(`output   \t: ${program.html ? 'memory' : path.resolve(config.output.path, config.output.filename)} `),
         chalk.grey('==================='),
     ].join('\n'),
 );
@@ -125,7 +128,7 @@ webpack(config, (err, stats) => {
 });
 
 // config
-function getConfig({ source, output, watch, mode, extensions, sourcemap, analize, polyfill, html, raw }) {
+function getConfig({ source, output, watch, mode, extensions, sourcemap, analize, polyfill, html, raw, files }) {
     const babelPlugins = polyfill ? babelCommonPlugins : [];
     const polyfillEntryInset = polyfill
         ? [getLocalDependency('core-js/stable'), getLocalDependency('reflect-metadata')]
@@ -265,6 +268,10 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                     options: {
                         limit: 8192,
                     },
+                },
+                {
+                    test: new RegExp(`\.(${files.replace(/\./g, '').replace(',', '|')})$`, 'i'),
+                    loader: 'file-loader',
                 },
                 {
                     test: new RegExp(`\.(${raw.replace(/\./g, '').replace(',', '|')})$`, 'i'),
