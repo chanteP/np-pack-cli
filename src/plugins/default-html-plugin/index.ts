@@ -1,6 +1,10 @@
-const service = require('./server');
+import { Service } from './server';
 
-class DefaultHtmlPlugin {
+export class DefaultHtmlPlugin {
+    port: number;
+    fileContentMap: Map<string, string>;
+    server: Service;
+
     constructor({ port }) {
         this.port = port;
 
@@ -19,15 +23,15 @@ class DefaultHtmlPlugin {
 
     }
 
-    callService(){
-        this.server = new service(this.port, {
+    callService() {
+        this.server = new Service(this.port, {
             resources: this.fileContentMap,
         });
 
         this.server.listen(() => {
-            try{
+            try {
                 this.server.openBrowser();
-            }catch{
+            } catch {
             }
         });
 
@@ -40,8 +44,8 @@ class DefaultHtmlPlugin {
 
 
             compilation.assets = {};
-            
-            if(!this.server){
+
+            if (!this.server) {
                 this.callService();
             }
 
@@ -51,5 +55,3 @@ class DefaultHtmlPlugin {
         });
     }
 }
-
-module.exports = DefaultHtmlPlugin;

@@ -1,14 +1,20 @@
-const chalk = require('chalk');
-const { exec } = require('child_process');
-const fs = require('fs');
-const http = require('http');
-const os = require('os');
+import chalk from 'chalk';
+import { exec } from 'child_process';
+import fs from 'fs';
+import http from 'http';
+import os from 'os';
 
 const titleHolder = '${TITLE}';
 const scriptSrcHolder = '${PACK_SOURCE}';
 const htmlTemplatePath = './template.html';
 
-class Service {
+export class Service {
+    private template:string;
+    private port: number;
+    private resources: Map<string, any>;
+    private entry: string;
+    server: http.Server;
+
     constructor(port, options) {
         this.template = fs.readFileSync(`${__dirname}/${htmlTemplatePath}`, 'utf8');
         this.port = port;
@@ -61,5 +67,3 @@ function getLocalIP() {
     const arr = networkInterfaces.en0?.find((link) => link.family === 'IPv4');
     return arr?.address || 'localhost';
 }
-
-module.exports = Service;

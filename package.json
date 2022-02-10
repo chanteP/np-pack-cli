@@ -5,9 +5,11 @@
   "bin": {
     "pack": "./index.js"
   },
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "node index.js test/entry.js -o temp/entry.js"
+    "test": "node index.js test/entry.js --target node -o temp/entry.js",
+    "build": "ts-node src/index.ts -o dist/index.js && cp -r ./src/loaders ./dist/",
+    "prepublish": "build"
   },
   "repository": {
     "type": "git",
@@ -42,6 +44,7 @@
     "core-js": "^3.20.3",
     "css-loader": "^3.2.0",
     "file-loader": "^6.2.0",
+    "fs-extra": "^10.0.0",
     "html-loader": "^0.5.5",
     "node-sass": "^7.0.1",
     "raw-loader": "^4.0.2",

@@ -1,17 +1,19 @@
 #!/usr/bin/env node
-const path = require('path');
-const webpack = require('webpack');
-const chalk = require('chalk');
-const program = require('commander');
+import path from 'path';
+import webpack from 'webpack';
+import chalk from 'chalk';
+import program from 'commander';
 
 // plugins ----------------------------------------
-const VueLoaderPlugin = require('vue-loader/dist/pluginWebpack5').default;
-const DefaultHtmlPlugin = require('./plugins/default-html-plugin');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const TerserPlugin = require('terser-webpack-plugin');
-const packageJson = require('./package.json');
-const { existsSync } = require('fs');
-const { resolve } = require('path');
+import VueLoaderPlugin from 'vue-loader/dist/pluginWebpack5';
+import { DefaultHtmlPlugin } from './plugins/default-html-plugin';
+import { buildVueEntry } from './plugins/default-html-plugin/utils';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import TerserPlugin from 'terser-webpack-plugin';
+import { existsSync } from 'fs';
+import { resolve } from 'path';
+
+import packageJson from '../package.json';
 
 const babelCommonPresetEnv = [
     getLocalDependency('@babel/preset-env'),
@@ -101,14 +103,16 @@ console.log(
         chalk.grey(`isWatch  \t: ${config.watch} `),
         chalk.grey(`polyfill \t: ${program.polyfill} `),
         chalk.grey(`source   \t: ${program.source} `),
-        chalk.grey(`output   \t: ${program.html ? 'memory' : path.resolve(config.output.path, config.output.filename)} `),
+        chalk.grey(
+            `output   \t: ${program.html ? 'memory' : path.resolve(config.output.path, config.output.filename)} `,
+        ),
         chalk.grey('==================='),
     ].join('\n'),
 );
 
 webpack(config, (err, stats) => {
     if (err) {
-        console.error(chalk.red(err));
+        console.error(chalk.red(err.toString()));
         return;
     }
     const message = stats.toString({
@@ -128,7 +132,9 @@ webpack(config, (err, stats) => {
 });
 
 // config
-function getConfig({ source, output, watch, mode, extensions, sourcemap, analize, polyfill, html, raw, files }) {
+function getConfig(options: typeof program) {
+    const { source, output, watch, mode, extensions, sourcemap, analize, polyfill, html, raw, files } = options;
+
     const babelPlugins = polyfill ? babelCommonPlugins : [];
     const polyfillEntryInset = polyfill
         ? [getLocalDependency('core-js/stable'), getLocalDependency('reflect-metadata')]
@@ -138,12 +144,15 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
         ? resolve(cwd, './tsconfig.json')
         : resolve(__dirname, './tsconfig.json');
 
+    const entry =
+        source.endsWith('.vue') && html ? buildVueEntry(path.resolve(cwd, source)) : path.resolve(cwd, source);
+
     return {
         mode,
         watch,
         devtool: sourcemap === 'auto' ? (mode === 'development' && 'eval-cheap-module-source-map') || '' : sourcemap,
         entry: {
-            [path.basename(source, '.js')]: [...polyfillEntryInset, path.resolve(cwd, source)],
+            [path.basename(source, '.js')]: [...polyfillEntryInset, entry],
         },
         output: {
             path: path.join(cwd, './'),
@@ -286,9 +295,9 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
             }),
             new VueLoaderPlugin(),
             analize &&
-                new BundleAnalyzerPlugin({
-                    analyzerPort: 0,
-                }),
+            new BundleAnalyzerPlugin({
+                analyzerPort: 0,
+            }),
             html && new DefaultHtmlPlugin({ port: html }),
         ].filter((d) => !!d),
         resolve: {
@@ -306,19 +315,19 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
             mangleWasmImports: true,
             minimizer: [
                 mode === 'production' &&
-                    new TerserPlugin({
-                        extractComments: false,
-                        parallel: true,
-                        terserOptions: {
-                            compress: {
-                                // pure_funcs: isRelease ? ['console.log', 'console.info'] : [],
-                            },
-                            output: {
-                                comments: false,
-                            },
-                            safari10: true,
+                new TerserPlugin({
+                    extractComments: false,
+                    parallel: true,
+                    terserOptions: {
+                        compress: {
+                            // pure_funcs: isRelease ? ['console.log', 'console.info'] : [],
                         },
-                    }),
+                        output: {
+                            comments: false,
+                        },
+                        safari10: true,
+                    },
+                }),
             ].filter((d) => !!d),
         },
         target: program.target,
