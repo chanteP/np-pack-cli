@@ -8,7 +8,7 @@ const program = require('commander');
 // plugins ----------------------------------------
 const VueLoaderPlugin = require('vue-loader/dist/pluginWebpack5').default;
 const DefaultHtmlPlugin = require('./plugins/default-html-plugin');
-const { buildVueEntry } = require('./plugins/default-html-plugin/utils');
+const { vueEntryHolder, vueEntryTemplatePath } = require('./plugins/default-html-plugin/utils');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const TerserPlugin = require('terser-webpack-plugin');
 
@@ -58,6 +58,7 @@ program
     .option('--analize', 'use webpack-bundle-analyzer', false)
     .option('--target <target>', 'target', 'web')
     .option('--mode <mode>', 'mode', 'development')
+    .option('--alias <alias>', 'resolve.alias', '')
     .option('--extensions <extensions>', 'extensions with url-loader, --extensions .wav,.mp3 ', '.wav,.mp3')
     .option('--files <files>', 'extensions with file-loader, --files .node ', '.node')
     .option('--raw <raw>', 'extensions with raw-loader, --raw .txt,.md ', '.txt,.md')
@@ -102,9 +103,7 @@ console.log(
         chalk.grey(`isWatch  \t: ${config.watch} `),
         chalk.grey(`polyfill \t: ${program.polyfill} `),
         chalk.grey(`source   \t: ${program.source} `),
-        chalk.grey(
-            `output   \t: ${program.html ? 'memory' : resolve(config.output.path, config.output.filename)} `,
-        ),
+        chalk.grey(`output   \t: ${program.html ? 'memory' : resolve(config.output.path, config.output.filename)} `),
         chalk.grey('==================='),
     ].join('\n'),
 );
@@ -131,7 +130,7 @@ webpack(config, (err, stats) => {
 });
 
 // config
-function getConfig({ source, output, watch, mode, extensions, sourcemap, analize, polyfill, html, raw, files }) {
+function getConfig({ source, output, watch, mode, extensions, sourcemap, analize, polyfill, html, raw, files, alias }) {
     const babelPlugins = polyfill ? babelCommonPlugins : [];
     const polyfillEntryInset = polyfill
         ? [getLocalDependency('core-js/stable'), getLocalDependency('reflect-metadata')]
@@ -141,8 +140,15 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
         ? resolve(cwd, './tsconfig.json')
         : resolve(__dirname, './tsconfig.json');
 
-    const entry =
-        source.endsWith('.vue') && html ? buildVueEntry(resolve(cwd, source)) : resolve(cwd, source);
+    const extraAlias = alias ? JSON.parse(alias) : {};
+
+    const useVueEntryTemplate = source.endsWith('.vue') && html;
+    const entry = useVueEntryTemplate ? vueEntryTemplatePath : resolve(cwd, source);
+    const vueEntryAlias = useVueEntryTemplate
+        ? {
+              [vueEntryHolder]: resolve(cwd, source),
+          }
+        : {};
 
     return {
         mode,
@@ -298,6 +304,10 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
             html && new DefaultHtmlPlugin({ port: html }),
         ].filter((d) => !!d),
         resolve: {
+            alias: {
+                ...vueEntryAlias,
+                ...extraAlias,
+            },
             extensions: ['.js', '.ts', '.mjs', '.vue', '.jsx', '.tsx', '.wasm'],
         },
         resolveLoader: {
