@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-const path = require('path');
+const { existsSync } = require('fs');
+const { resolve, basename, join } = require('path');
 const webpack = require('webpack');
 const chalk = require('chalk');
 const program = require('commander');
@@ -7,11 +8,11 @@ const program = require('commander');
 // plugins ----------------------------------------
 const VueLoaderPlugin = require('vue-loader/dist/pluginWebpack5').default;
 const DefaultHtmlPlugin = require('./plugins/default-html-plugin');
+const { buildVueEntry } = require('./plugins/default-html-plugin/utils');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const TerserPlugin = require('terser-webpack-plugin');
+
 const packageJson = require('./package.json');
-const { existsSync } = require('fs');
-const { resolve } = require('path');
 
 const babelCommonPresetEnv = [
     getLocalDependency('@babel/preset-env'),
@@ -101,7 +102,9 @@ console.log(
         chalk.grey(`isWatch  \t: ${config.watch} `),
         chalk.grey(`polyfill \t: ${program.polyfill} `),
         chalk.grey(`source   \t: ${program.source} `),
-        chalk.grey(`output   \t: ${program.html ? 'memory' : path.resolve(config.output.path, config.output.filename)} `),
+        chalk.grey(
+            `output   \t: ${program.html ? 'memory' : resolve(config.output.path, config.output.filename)} `,
+        ),
         chalk.grey('==================='),
     ].join('\n'),
 );
@@ -138,15 +141,18 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
         ? resolve(cwd, './tsconfig.json')
         : resolve(__dirname, './tsconfig.json');
 
+    const entry =
+        source.endsWith('.vue') && html ? buildVueEntry(resolve(cwd, source)) : resolve(cwd, source);
+
     return {
         mode,
         watch,
         devtool: sourcemap === 'auto' ? (mode === 'development' && 'eval-cheap-module-source-map') || '' : sourcemap,
         entry: {
-            [path.basename(source, '.js')]: [...polyfillEntryInset, path.resolve(cwd, source)],
+            [basename(source, '.js')]: [...polyfillEntryInset, entry],
         },
         output: {
-            path: path.join(cwd, './'),
+            path: join(cwd, './'),
             filename: output,
         },
         module: {
@@ -186,7 +192,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                             },
                         },
                     ],
-                    exclude: path.resolve(cwd, '/node_modules'),
+                    exclude: resolve(cwd, '/node_modules'),
                 },
                 // { test: /\.tsx$/, loader: 'babel-loader!ts-loader', options: { appendTsxSuffixTo: [/TSX\.vue$/] } },
                 {
@@ -210,7 +216,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                 {
                     test: /\.(jsx)$/,
                     loader: 'babel-loader',
-                    exclude: path.resolve(cwd, '/node_modules'),
+                    exclude: resolve(cwd, '/node_modules'),
                     options: {
                         presets: [babelCommonPresetEnv],
                         plugins: babelPlugins,
@@ -326,7 +332,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
 }
 
 function getLocal(moduleName) {
-    return path.resolve(__dirname, moduleName);
+    return resolve(__dirname, moduleName);
 }
 
 function getLocalDependency(moduleName) {

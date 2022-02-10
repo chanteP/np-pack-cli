@@ -1,13 +1,13 @@
 {
   "name": "np-pack-cli",
-  "version": "2.0.0-alpha.22",
+  "version": "2.0.0-alpha.23",
   "description": "",
   "bin": {
     "pack": "./index.js"
   },
   "main": "index.js",
   "scripts": {
-    "test": "node index.js test/entry.js -o temp/entry.js"
+    "test": "node index.js demo/source.ts -o ./.temp/entry.js"
   },
   "repository": {
     "type": "git",
