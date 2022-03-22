@@ -155,7 +155,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
         watch,
         devtool: sourcemap === 'auto' ? (mode === 'development' && 'eval-cheap-module-source-map') || '' : sourcemap,
         entry: {
-            [basename(source, '.js')]: [...polyfillEntryInset, entry],
+            [basename(source, '.js')]: [getLocalDependency('regenerator-runtime/runtime'), ...polyfillEntryInset, entry],
         },
         output: {
             path: join(cwd, './'),

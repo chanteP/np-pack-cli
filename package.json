@@ -1,6 +1,6 @@
 {
   "name": "np-pack-cli",
-  "version": "2.0.0-alpha.25",
+  "version": "2.0.0",
   "description": "",
   "bin": {
     "pack": "./index.js"
@@ -47,6 +47,7 @@
     "node-sass": "^7.0.1",
     "raw-loader": "^4.0.2",
     "reflect-metadata": "^0.1.13",
+    "regenerator-runtime": "^0.13.9",
     "sass-loader": "^12.4.0",
     "style-loader": "^1.0.0",
     "terser-webpack-plugin": "4",
