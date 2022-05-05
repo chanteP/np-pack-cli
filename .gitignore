@@ -3,3 +3,4 @@ test/
 temp/
 demo
 .temp/
+yarn-error.log

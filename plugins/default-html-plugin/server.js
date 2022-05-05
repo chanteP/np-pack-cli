@@ -3,6 +3,7 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const http = require('http');
 const os = require('os');
+const path = require('path');
 
 const titleHolder = '${TITLE}';
 const scriptSrcHolder = '${PACK_SOURCE}';
@@ -14,12 +15,14 @@ class Service {
         this.port = port;
         this.resources = options.resources;
 
+        const root = process.cwd();
         this.entry = this.parseEntry();
 
         const entryPath = `/${this.entry}.js`;
         const rootHtml = this.template.replace(titleHolder, this.entry).replace(scriptSrcHolder, entryPath);
 
         this.server = http.createServer((request, response) => {
+            console.log(chalk.gray(`[pack]request: ${request.url}`));
             try {
                 switch (request.url) {
                     case entryPath:
@@ -27,6 +30,10 @@ class Service {
                         break;
                     case '/':
                         response.write(rootHtml);
+                        break;
+                    default: 
+                        // static
+                        response.write(fs.readFileSync(`${root}${path.join('/', request.url)}`));
                         break;
                 }
             } catch (e) {
