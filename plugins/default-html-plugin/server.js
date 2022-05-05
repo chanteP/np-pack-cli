@@ -24,8 +24,8 @@ class Service {
 
         this.server = http.createServer((request, response) => {
             console.log(chalk.gray(`[pack]request: ${request.url}`));
-            const mime = mime.getType(request.url);
-            mime && response.setHeader('content-type', mime);
+            const type = mime.getType(request.url);
+            type && response.setHeader('content-type', type);
             try {
                 switch (request.url) {
                     case entryPath:
