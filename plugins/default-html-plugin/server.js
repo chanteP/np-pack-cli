@@ -4,6 +4,7 @@ const fs = require('fs');
 const http = require('http');
 const os = require('os');
 const path = require('path');
+const mime = require('mime');
 
 const titleHolder = '${TITLE}';
 const scriptSrcHolder = '${PACK_SOURCE}';
@@ -23,6 +24,8 @@ class Service {
 
         this.server = http.createServer((request, response) => {
             console.log(chalk.gray(`[pack]request: ${request.url}`));
+            const mime = mime.getType(request.url);
+            mime && response.setHeader('content-type', mime);
             try {
                 switch (request.url) {
                     case entryPath:
