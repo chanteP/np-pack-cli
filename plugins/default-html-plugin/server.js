@@ -28,6 +28,9 @@ class Service {
             type && response.setHeader('content-type', type);
             try {
                 switch (request.url) {
+                    case '/favicon.ico':
+                        response.write('');
+                        break;
                     case entryPath:
                         response.write(this.resources.get(this.entry));
                         break;
