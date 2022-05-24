@@ -43,6 +43,7 @@ class Service {
                         break;
                 }
             } catch (e) {
+                response.statusCode = 404;
                 console.error(chalk.red(`dev service error: `, e));
             }
             response.end();
