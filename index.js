@@ -265,15 +265,15 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                     test: /\.wasm$/,
                     loader: 'wasm-loader',
                 },
-                {
-                    test: /\.asm$/,
-                    use: [
-                        // wasm to promise
-                        'wasm-loader',
-                        // asm to wasm
-                        'asm-loader',
-                    ],
-                },
+                // {
+                //     test: /\.asm$/,
+                //     use: [
+                //         // wasm to promise
+                //         'wasm-loader',
+                //         // asm to wasm
+                //         'asm-loader',
+                //     ],
+                // },
                 {
                     test: new RegExp(`\.(${extensions.replace(/\./g, '').replace(',', '|')})$`, 'i'),
                     loader: 'url-loader',
