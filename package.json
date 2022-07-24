@@ -1,6 +1,6 @@
 {
   "name": "np-pack-cli",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": " ",
   "bin": {
     "pack": "./index.js"
@@ -34,7 +34,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.16.7",
     "@vue/compiler-sfc": "^3.2.28",
-    "assemblyscript": "^0.20.7",
+    "assemblyscript": "^0.20.16",
     "babel-loader": "^8.0.6",
     "babel-polyfill": "^6.26.0",
     "chalk": "^2.4.2",
@@ -54,12 +54,12 @@
     "terser-webpack-plugin": "4",
     "ts-loader": "8",
     "url-loader": "^4.1.1",
-    "vue-loader": "16",
+    "vue-loader": "^17.0.0",
     "webpack": "5",
     "webpack-bundle-analyzer": "^4.5.0"
   },
   "devDependencies": {
     "typescript": "^4.5.5",
-    "vue": "3"
+    "vue": "^3.2.37"
   }
 }
