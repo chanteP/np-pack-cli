@@ -1,15 +1,15 @@
+const { join } = require('path');
 const service = require('./server');
 
 class DefaultHtmlPlugin {
     constructor({ port }) {
         this.port = port;
 
-        this.fileContentMap = new Map;
+        this.fileContentMap = new Map();
     }
 
     // private
     updateResources(compilation) {
-
         for (const [name, entry] of compilation.entrypoints) {
             const assetName = entry.getFiles();
             if (assetName && assetName.length) {
@@ -17,31 +17,30 @@ class DefaultHtmlPlugin {
             }
         }
 
+        Object.entries(compilation.assets).forEach(([name, data]) => {
+            this.fileContentMap.set(join('/', name), data.source());
+        });
     }
 
-    callService(){
+    callService() {
         this.server = new service(this.port, {
             resources: this.fileContentMap,
         });
 
         this.server.listen(() => {
-            try{
+            try {
                 this.server.openBrowser();
-            }catch{
-            }
+            } catch {}
         });
-
     }
 
     apply(compiler) {
         compiler.hooks.emit.tapAsync('emit', (compilation, callback) => {
-
             this.updateResources(compilation);
 
-
             compilation.assets = {};
-            
-            if(!this.server){
+
+            if (!this.server) {
                 this.callService();
             }
 

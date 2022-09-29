@@ -26,20 +26,26 @@ class Service {
             console.log(chalk.gray(`[pack]request: ${request.url}`));
             const type = mime.getType(request.url);
             type && response.setHeader('content-type', type);
+
+            const requestPath = path.join('/', request.url);
+
             try {
-                switch (request.url) {
-                    case '/favicon.ico':
+                switch (true) {
+                    case request.url === '/favicon.ico':
                         response.write('');
                         break;
-                    case entryPath:
+                    case request.url === entryPath:
                         response.write(this.resources.get(this.entry));
                         break;
-                    case '/':
+                    case this.resources.has(requestPath):
+                        response.write(this.resources.get(requestPath));
+                        break;
+                    case request.url === '/':
                         response.write(rootHtml);
                         break;
-                    default: 
+                    default:
                         // static
-                        response.write(fs.readFileSync(`${root}${path.join('/', request.url)}`));
+                        response.write(fs.readFileSync(`${root}${requestPath}`));
                         break;
                 }
             } catch (e) {
