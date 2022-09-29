@@ -1,6 +1,6 @@
 {
   "name": "np-pack-cli",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": " ",
   "bin": {
     "pack": "./index.js"
@@ -34,6 +34,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.16.7",
     "@vue/compiler-sfc": "^3.2.28",
+    "@vue/runtime-dom": "^3.2.40",
     "assemblyscript": "^0.20.16",
     "babel-loader": "^8.0.6",
     "babel-polyfill": "^6.26.0",
