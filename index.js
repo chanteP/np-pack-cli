@@ -8,6 +8,7 @@ const program = require('commander');
 // plugins ----------------------------------------
 const VueLoaderPlugin = require('vue-loader/dist/pluginWebpack5').default;
 const DefaultHtmlPlugin = require('./plugins/default-html-plugin');
+const PackHtmlPlugin = require('./plugins/pack-html-plugin');
 const { vueEntryHolder, vueEntryTemplatePath } = require('./plugins/default-html-plugin/utils');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const TerserPlugin = require('terser-webpack-plugin');
@@ -142,7 +143,10 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
 
     const extraAlias = alias ? JSON.parse(alias) : {};
 
-    const useVueEntryTemplate = source.endsWith('.vue') && html;
+    const isVueSource = source.endsWith('.vue');
+    const isHTMLOutput = output.endsWith('.html') && !html;
+    const useVueEntryTemplate = (isVueSource && html) || isHTMLOutput;
+
     const entry = useVueEntryTemplate ? vueEntryTemplatePath : resolve(cwd, source);
     const vueEntryAlias = useVueEntryTemplate
         ? {
@@ -306,6 +310,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                     analyzerPort: 0,
                 }),
             html && new DefaultHtmlPlugin({ port: html }),
+            isHTMLOutput && new PackHtmlPlugin(),
         ].filter((d) => !!d),
         resolve: {
             alias: {

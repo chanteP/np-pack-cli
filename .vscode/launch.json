@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "debug",
+            "program": "${workspaceFolder}/index.js",
+            "request": "launch",
+            "args": ["demo/index.vue", "-o", "./.temp/test.html"],
+            "skipFiles": ["<node_internals>/**"],
+            "type": "node"
+        },
+        {
+            "name": "debug ts",
+            "program": "${file}",
+            "request": "launch",
+            "runtimeExecutable": "/usr/local/bin/node",
+            "runtimeArgs": ["--loader", "tsx"],
+            "skipFiles": ["<node_internals>/**"],
+            "type": "node"
+        }
+    ]
+}
