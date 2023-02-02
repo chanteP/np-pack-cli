@@ -56,7 +56,7 @@ program
     .option('-w, --watch', 'watch', false)
     .option('--polyfill', 'use polyfill', false)
     .option('--html [port]', 'preview in html without output. default port: 9999', false)
-    .option('--analize', 'use webpack-bundle-analyzer', false)
+    .option('--analyze', 'use webpack-bundle-analyzer', false)
     .option('--target <target>', 'target', 'web')
     .option('--mode <mode>', 'mode', 'development')
     .option('--alias <alias>', 'resolve.alias', '')
@@ -79,8 +79,9 @@ if (!program.source) {
     console.log(chalk.gray('Examples:'));
     console.log(chalk.gray(' pack ./somePath/index.ts'));
     console.log(chalk.gray(' pack ./somePath/index.ts --html'));
+    console.log(chalk.gray(' pack ./somePath/index.ts -o ./dist/file.html'));
     console.log(chalk.gray(' pack ./somePath/index.ts -o ./dist/[name].[chunkhash].js'));
-    console.log(chalk.gray(' pack ./somePath/index.ts -o ./dist/[name].[chunkhash].js --analize'));
+    console.log(chalk.gray(' pack ./somePath/index.ts -o ./dist/[name].[chunkhash].js --analyze'));
 
     console.log('\n');
 
@@ -90,7 +91,7 @@ if (!program.source) {
 }
 
 program.watch = program.watch || !!program.html;
-program.html = program.analize ? null : program.html;
+program.html = program.analyze ? null : program.html;
 program.html = program.html ? (/^\d+$/.test(program.html + '') ? +program.html : 9999) : null;
 
 const config = getConfig(program);
@@ -131,7 +132,7 @@ webpack(config, (err, stats) => {
 });
 
 // config
-function getConfig({ source, output, watch, mode, extensions, sourcemap, analize, polyfill, html, raw, files, alias }) {
+function getConfig({ source, output, watch, mode, extensions, sourcemap, analyze, polyfill, html, raw, files, alias }) {
     const babelPlugins = polyfill ? babelCommonPlugins : [];
     const polyfillEntryInset = polyfill
         ? [getLocalDependency('core-js/stable'), getLocalDependency('reflect-metadata')]
@@ -305,7 +306,7 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analize
                 'process.env': {},
             }),
             new VueLoaderPlugin(),
-            analize &&
+            analyze &&
                 new BundleAnalyzerPlugin({
                     analyzerPort: 0,
                 }),
