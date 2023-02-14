@@ -27,6 +27,10 @@ class Service {
             const type = mime.getType(request.url);
             type && response.setHeader('content-type', type);
 
+            // localhost policy setting
+            response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+            response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+
             const requestPath = path.join('/', request.url);
 
             try {
