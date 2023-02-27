@@ -22,8 +22,19 @@ class Service {
         const entryPath = `/${this.entry}.js`;
         const rootHtml = this.template.replace(titleHolder, this.entry).replace(scriptSrcHolder, entryPath);
 
+        const uaCache = new Map();
+
         this.server = http.createServer((request, response) => {
-            console.log(chalk.gray(`[pack]request: ${request.url}`));
+            const remoteIP = request.socket.remoteAddress;
+
+            console.log(chalk.gray(`[pack][${remoteIP}]request: ${request.url}`));
+
+            if (!uaCache.has(remoteIP)) {
+                const ua = request.headers['user-agent'];
+                uaCache.set(remoteIP, ua);
+                console.log(chalk.gray(`[pack][${remoteIP}]userAgent: ${ua}`));
+            }
+
             const type = mime.getType(request.url);
             type && response.setHeader('content-type', type);
 

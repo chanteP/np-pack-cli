@@ -1,6 +1,6 @@
 {
   "name": "np-pack-cli",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": " ",
   "bin": {
     "pack": "./index.js"
