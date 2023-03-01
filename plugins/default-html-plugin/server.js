@@ -35,27 +35,29 @@ class Service {
                 console.log(chalk.gray(`[pack][${remoteIP}]userAgent: ${ua}`));
             }
 
-            const type = mime.getType(request.url);
+            const purePath = request.url?.split('?')[0] ?? '/';
+            // const query = request.url
+            const requestPath = path.join('/', purePath);
+
+            const type = mime.getType(requestPath);
             type && response.setHeader('content-type', type);
 
             // localhost policy setting
             response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
             response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
 
-            const requestPath = path.join('/', request.url);
-
             try {
                 switch (true) {
-                    case request.url === '/favicon.ico':
+                    case requestPath === '/favicon.ico':
                         response.write('');
                         break;
-                    case request.url === entryPath:
+                    case requestPath === entryPath:
                         response.write(this.resources.get(this.entry));
                         break;
                     case this.resources.has(requestPath):
                         response.write(this.resources.get(requestPath));
                         break;
-                    case request.url === '/':
+                    case requestPath === '/':
                         response.write(rootHtml);
                         break;
                     default:
