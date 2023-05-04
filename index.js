@@ -303,6 +303,8 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analyze
         plugins: [
             new webpack.DefinePlugin({
                 __DEV__: JSON.stringify(mode),
+                __VUE_OPTIONS_API__: true,
+                __VUE_PROD_DEVTOOLS__: false,
                 'process.env': {},
             }),
             new VueLoaderPlugin(),

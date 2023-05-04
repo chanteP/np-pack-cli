@@ -1,2 +1,5 @@
 demo
 .temp
+.vscode
+plugins/default-html-plugin/userAgent
+yarn-error.log

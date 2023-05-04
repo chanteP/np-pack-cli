@@ -4,3 +4,4 @@ temp/
 demo
 .temp/
 yarn-error.log
+plugins/default-html-plugin/userAgent

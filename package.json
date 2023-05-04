@@ -1,6 +1,6 @@
 {
   "name": "np-pack-cli",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": " ",
   "bin": {
     "pack": "./index.js"
@@ -57,10 +57,8 @@
     "url-loader": "^4.1.1",
     "vue-loader": "^17.0.0",
     "webpack": "5",
-    "webpack-bundle-analyzer": "^4.5.0"
-  },
-  "devDependencies": {
-    "typescript": "^4.5.5",
-    "vue": "^3.2.37"
+    "webpack-bundle-analyzer": "^4.5.0",
+    "typescript": "~5",
+    "vue": "3"
   }
 }

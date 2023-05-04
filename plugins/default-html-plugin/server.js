@@ -1,6 +1,6 @@
 const chalk = require('chalk');
 const { exec } = require('child_process');
-const fs = require('fs');
+const fs = require('fs-extra');
 const http = require('http');
 const os = require('os');
 const path = require('path');
@@ -9,10 +9,15 @@ const mime = require('mime');
 const titleHolder = '${TITLE}';
 const scriptSrcHolder = '${PACK_SOURCE}';
 const htmlTemplatePath = './template.html';
+const localUAMapPath = './userAgent';
 
 class Service {
     constructor(port, options) {
         this.template = fs.readFileSync(`${__dirname}/${htmlTemplatePath}`, 'utf8');
+        this.uaFile = path.resolve(`${__dirname}/${localUAMapPath}`);
+        console.log(chalk.gray(`userAgent log@ ${this.uaFile}`))
+        fs.ensureFileSync(this.uaFile);
+
         this.port = port;
         this.resources = options.resources;
 
@@ -22,18 +27,11 @@ class Service {
         const entryPath = `/${this.entry}.js`;
         const rootHtml = this.template.replace(titleHolder, this.entry).replace(scriptSrcHolder, entryPath);
 
-        const uaCache = new Map();
-
         this.server = http.createServer((request, response) => {
             const remoteIP = request.socket.remoteAddress;
 
-            console.log(chalk.gray(`[pack][${remoteIP}]request: ${request.url}`));
-
-            if (!uaCache.has(remoteIP)) {
-                const ua = request.headers['user-agent'];
-                uaCache.set(remoteIP, ua);
-                console.log(chalk.gray(`[pack][${remoteIP}]userAgent: ${ua}`));
-            }
+            this.catchUserAgent(remoteIP, request);
+            console.log(chalk.gray(`[pack][${new Date().toLocaleTimeString()}][${remoteIP}]request: ${request.url}`));
 
             const purePath = request.url?.split('?')[0] ?? '/';
             // const query = request.url
@@ -42,9 +40,11 @@ class Service {
             const type = mime.getType(requestPath);
             type && response.setHeader('content-type', type);
 
-            // localhost policy setting
-            response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-            response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+            if(!this.isUnsafe(request.headers.host)){
+                // localhost policy setting
+                response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+                response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+            }
 
             try {
                 switch (true) {
@@ -60,6 +60,10 @@ class Service {
                     case requestPath === '/':
                         response.write(rootHtml);
                         break;
+                    case requestPath === '/etc/passwd':
+                        // 内网sb扫端口用
+                        response.write('shabiFUCKYOUcaonima');
+                        break;
                     default:
                         // static
                         response.write(fs.readFileSync(`${root}${requestPath}`));
@@ -71,6 +75,22 @@ class Service {
             }
             response.end();
         });
+    }
+
+    catchUserAgent(remoteIP, request) {
+        this.uaCache = this.uaCache || new Map();
+        
+        if (!this.uaCache.has(remoteIP)) {
+            const ua = request.headers['user-agent'];
+            this.uaCache.set(remoteIP, ua);
+            console.log(chalk.gray(`[pack][${remoteIP}]userAgent: ${ua}`));
+
+            fs.appendFile(this.uaFile, `[${new Date().toLocaleString()}][${remoteIP}] ${ua} \n`);
+        }
+    }
+
+    isUnsafe(host) {
+        return /([\d]+\.){3}[\d]+(:[\d]+)?/.test(host);
     }
 
     listen(callback) {
@@ -85,7 +105,9 @@ class Service {
 
     openBrowser() {
         const host = `http://${getLocalIP()}:${this.port}/`;
+        const localhost = `http://localhost:${this.port}/`;
         console.log(chalk.cyan(`dev service: ${host}`));
+        console.log(chalk.cyan(`           : ${localhost}`));
         exec(`open ${host}`);
     }
 
