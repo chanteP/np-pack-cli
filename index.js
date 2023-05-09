@@ -60,7 +60,11 @@ program
     .option('--target <target>', 'target', 'web')
     .option('--mode <mode>', 'mode', 'development')
     .option('--alias <alias>', 'resolve.alias', '')
-    .option('--extensions <extensions>', 'extensions with url-loader, --extensions .wav,.mp3 ', '.wav,.mp3,.mp4,.atlas,.skel')
+    .option(
+        '--extensions <extensions>',
+        'extensions with url-loader, --extensions .wav,.mp3 ',
+        '.wav,.mp3',
+    )
     .option('--files <files>', 'extensions with file-loader, --files .node ', '.node')
     .option('--raw <raw>', 'extensions with raw-loader, --raw .txt,.md ', '.txt,.md')
     .option('--cjsOnly', 'use cjs npm only')
@@ -133,7 +137,21 @@ webpack(config, (err, stats) => {
 });
 
 // config
-function getConfig({ source, output, watch, mode, extensions, sourcemap, analyze, polyfill, html, raw, files, alias, cjsOnly }) {
+function getConfig({
+    source,
+    output,
+    watch,
+    mode,
+    extensions,
+    sourcemap,
+    analyze,
+    polyfill,
+    html,
+    raw,
+    files,
+    alias,
+    cjsOnly,
+}) {
     const babelPlugins = polyfill ? babelCommonPlugins : [];
     const polyfillEntryInset = polyfill
         ? [getLocalDependency('core-js/stable'), getLocalDependency('reflect-metadata')]
@@ -250,12 +268,23 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analyze
                     ],
                 },
                 {
-                    test: /\.(jpe?g|png|gif|svg)$/i,
+                    test: /\.(jpe?g|png|gif|svg|mp3|mp4)$/i,
                     use: [
                         {
                             loader: 'url-loader',
                             options: {
                                 limit: 10000,
+                            },
+                        },
+                    ],
+                },
+                {
+                    test: /\.(skel|stlas|glb|gltf)$/i,
+                    use: [
+                        {
+                            loader: 'url-loader',
+                            options: {
+                                limit: 1,
                             },
                         },
                     ],
@@ -285,18 +314,18 @@ function getConfig({ source, output, watch, mode, extensions, sourcemap, analyze
                 //     ],
                 // },
                 {
-                    test: new RegExp(`\.(${extensions.replace(/\./g, '').replace(',', '|')})$`, 'i'),
+                    test: new RegExp(`\.(${extensions.replace(/\./g, '').replace(/,/g, '|')})$`, 'i'),
                     loader: 'url-loader',
                     options: {
                         limit: 1,
                     },
                 },
                 {
-                    test: new RegExp(`\.(${files.replace(/\./g, '').replace(',', '|')})$`, 'i'),
+                    test: new RegExp(`\.(${files.replace(/\./g, '').replace(/,/g, '|')})$`, 'i'),
                     loader: 'file-loader',
                 },
                 {
-                    test: new RegExp(`\.(${raw.replace(/\./g, '').replace(',', '|')})$`, 'i'),
+                    test: new RegExp(`\.(${raw.replace(/\./g, '').replace(/,/g, '|')})$`, 'i'),
                     loader: 'raw-loader',
                 },
             ],
