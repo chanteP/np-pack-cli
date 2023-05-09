@@ -60,11 +60,7 @@ program
     .option('--target <target>', 'target', 'web')
     .option('--mode <mode>', 'mode', 'development')
     .option('--alias <alias>', 'resolve.alias', '')
-    .option(
-        '--extensions <extensions>',
-        'extensions with url-loader, --extensions .wav,.mp3 ',
-        '.wav,.mp3',
-    )
+    .option('--extensions <extensions>', 'extensions with url-loader, --extensions .wav,.mp3 ', '.wav,.mp3')
     .option('--files <files>', 'extensions with file-loader, --files .node ', '.node')
     .option('--raw <raw>', 'extensions with raw-loader, --raw .txt,.md ', '.txt,.md')
     .option('--cjsOnly', 'use cjs npm only')
@@ -268,7 +264,7 @@ function getConfig({
                     ],
                 },
                 {
-                    test: /\.(jpe?g|png|gif|svg|mp3|mp4)$/i,
+                    test: /\.(jpe?g|png|gif|svg)$/i,
                     use: [
                         {
                             loader: 'url-loader',
@@ -279,13 +275,10 @@ function getConfig({
                     ],
                 },
                 {
-                    test: /\.(skel|stlas|glb|gltf)$/i,
+                    test: /\.(mp3|mp4|skel|atlas|glb|gltf)$/i,
                     use: [
                         {
-                            loader: 'url-loader',
-                            options: {
-                                limit: 1,
-                            },
+                            loader: 'file-loader',
                         },
                     ],
                 },
