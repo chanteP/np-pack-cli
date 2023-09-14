@@ -297,15 +297,15 @@ function getConfig({
                     test: /\.wasm$/,
                     loader: 'wasm-loader',
                 },
-                // {
-                //     test: /\.asm$/,
-                //     use: [
-                //         // wasm to promise
-                //         'wasm-loader',
-                //         // asm to wasm
-                //         'asm-loader',
-                //     ],
-                // },
+                {
+                    test: /\.asm$/,
+                    use: [
+                        // wasm to promise
+                        'wasm-loader',
+                        // asm to wasm
+                        'asm-loader',
+                    ],
+                },
                 {
                     test: new RegExp(`\.(${extensions.replace(/\./g, '').replace(/,/g, '|')})$`, 'i'),
                     loader: 'url-loader',
@@ -354,6 +354,7 @@ function getConfig({
                 getLocal('../../node_modules'),
                 'node_modules',
             ],
+            extensions: ['.js', '.ts', '.mjs', '.vue', '.jsx', '.tsx', '.wasm'],
         },
         optimization: {
             mangleWasmImports: true,

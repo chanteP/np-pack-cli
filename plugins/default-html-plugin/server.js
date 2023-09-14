@@ -62,7 +62,7 @@ class Service {
                         break;
                     case requestPath === '/etc/passwd':
                         // 内网sb扫端口用
-                        response.write('shabiFUCKYOUcaonima');
+                        response.write('shabiFUCKYOU');
                         break;
                     default:
                         // static

@@ -5,7 +5,7 @@
             "name": "debug",
             "program": "${workspaceFolder}/index.js",
             "request": "launch",
-            "args": ["demo/index.vue", "-o", "./.temp/test.html"],
+            "args": ["./demo/wasm/test.vue", "--html"],
             "skipFiles": ["<node_internals>/**"],
             "type": "node"
         },
