@@ -66,7 +66,7 @@ program
     .option('--cjsOnly', 'use cjs npm only')
     .option(
         '--sourcemap <sourcemap>',
-        "sourcemap, default@development:cheap-module-eval-source-map; @production:''",
+        "sourcemap, default@development:cheap-module-eval-source-map; @production:undefined",
         'auto',
     );
 
@@ -173,7 +173,7 @@ function getConfig({
     return {
         mode,
         watch,
-        devtool: sourcemap === 'auto' ? (mode === 'development' && 'eval-cheap-module-source-map') || '' : sourcemap,
+        devtool: sourcemap === 'auto' ? (mode === 'development' && 'eval-cheap-module-source-map') || undefined : sourcemap,
         entry: {
             [basename(source, '.js')]: [
                 getLocalDependency('regenerator-runtime/runtime'),
