@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const { existsSync } = require('fs');
-const { resolve, basename, join } = require('path');
+const { resolve, basename, dirname, join } = require('path');
 const webpack = require('webpack');
 const chalk = require('chalk');
 const program = require('commander');
@@ -46,6 +46,7 @@ const babelCommonPlugins = [
     getLocalDependency('@babel/plugin-proposal-numeric-separator'),
     getLocalDependency('@babel/plugin-proposal-throw-expressions'),
 ];
+
 // const
 const cwd = process.cwd();
 
@@ -66,7 +67,7 @@ program
     .option('--cjsOnly', 'use cjs npm only')
     .option(
         '--sourcemap <sourcemap>',
-        "sourcemap, default@development:cheap-module-eval-source-map; @production:undefined",
+        "sourcemap, default@development:cheap-module-eval-source-map; @production:''",
         'auto',
     );
 
@@ -157,6 +158,8 @@ function getConfig({
         ? resolve(cwd, './tsconfig.json')
         : resolve(__dirname, './tsconfig.json');
 
+    const outputPath = resolve(cwd, './', output);
+
     const extraAlias = alias ? JSON.parse(alias) : {};
 
     const isVueSource = source.endsWith('.vue');
@@ -173,7 +176,8 @@ function getConfig({
     return {
         mode,
         watch,
-        devtool: sourcemap === 'auto' ? (mode === 'development' && 'eval-cheap-module-source-map') || undefined : sourcemap,
+        devtool:
+            sourcemap === 'auto' ? (mode === 'development' && 'eval-cheap-module-source-map') || undefined : sourcemap,
         entry: {
             [basename(source, '.js')]: [
                 getLocalDependency('regenerator-runtime/runtime'),
@@ -182,8 +186,8 @@ function getConfig({
             ],
         },
         output: {
-            path: join(cwd, './'),
-            filename: output,
+            path: join(dirname(outputPath), './'),
+            filename: basename(outputPath),
         },
         module: {
             defaultRules: [
