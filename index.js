@@ -48,7 +48,7 @@ const babelCommonPlugins = [
 ];
 
 // const
-const cwd = process.cwd();
+const cwd = process.env.CWD ? resolve(process.cwd(), process.env.CWD) : process.cwd();
 
 // command
 program
