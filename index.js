@@ -204,6 +204,10 @@ function getConfig({
 
             rules: [
                 {
+                  resourceQuery: /url/,
+                  type: 'asset/source',
+                },
+                {
                     test: /\.(vue)$/,
                     loader: 'vue-loader',
                 },
