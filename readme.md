@@ -52,3 +52,12 @@ mod().then(({ exports: { add } }) => {
   console.log(add(3, 4));
 });
 ```
+
+or
+
+```
+import { get } from './fib.asm';
+
+const fib = await get('fib');
+fib?.(40);
+```
