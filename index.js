@@ -278,6 +278,8 @@ function getConfig({
                             loader: 'url-loader',
                             options: {
                                 limit: 10000,
+                                outputPath: join(output, '../images/'),
+                                publicPath: './images/',
                             },
                         },
                     ],
@@ -297,6 +299,8 @@ function getConfig({
                             loader: 'url-loader',
                             options: {
                                 limit: 10,
+                                outputPath: join(output, '../fonts/'),
+                                publicPath: './fonts/',
                             },
                         },
                     ],
