@@ -330,6 +330,10 @@ function getConfig({
                     loader: 'file-loader',
                 },
                 {
+                    test: /\.(glsl|vert|frag)$/,
+                    loader: 'raw-loader',
+                },
+                {
                     test: new RegExp(`\.(${raw.replace(/\./g, '').replace(/,/g, '|')})$`, 'i'),
                     loader: 'raw-loader',
                 },
@@ -347,7 +351,7 @@ function getConfig({
                 new BundleAnalyzerPlugin({
                     analyzerPort: 0,
                 }),
-            html && new DefaultHtmlPlugin({ port: html }),
+            html && new DefaultHtmlPlugin({ port: html, output }),
             isHTMLOutput && new PackHtmlPlugin(),
         ].filter((d) => !!d),
         resolve: {

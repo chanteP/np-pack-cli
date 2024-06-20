@@ -20,8 +20,9 @@ class Service {
 
         this.port = port;
         this.resources = options.resources;
-
+        
         const root = process.cwd();
+        const outputPath = path.normalize(path.dirname(options.output));
         this.entry = this.parseEntry();
 
         const entryPath = `/${this.entry}.js`;
@@ -46,6 +47,8 @@ class Service {
                 response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
             }
 
+            console.log('resources===', requestPath, `/${outputPath}${requestPath}`, this.resources.keys())
+
             try {
                 switch (true) {
                     case requestPath === '/favicon.ico':
@@ -59,6 +62,11 @@ class Service {
                         break;
                     case requestPath === '/':
                         response.write(rootHtml);
+                        break;
+                    // assets
+                    case requestPath.startsWith('/images/'):
+                    case requestPath.startsWith('/fonts/'):
+                        response.write(this.resources.get(`/${outputPath}${requestPath}`));
                         break;
                     case requestPath === '/etc/passwd':
                         // 内网sb扫端口用
