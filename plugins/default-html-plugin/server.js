@@ -47,7 +47,7 @@ class Service {
                 response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
             }
 
-            console.log('resources===', requestPath, `/${outputPath}${requestPath}`, this.resources.keys())
+            // console.log('resources===', requestPath, `/${outputPath}${requestPath}`, this.resources.keys())
 
             try {
                 switch (true) {
