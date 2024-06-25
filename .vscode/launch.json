@@ -5,7 +5,7 @@
             "name": "debug",
             "program": "${workspaceFolder}/index.js",
             "request": "launch",
-            "args": ["./demo/index.ts", "-o", "./.temp/aaa/demo/test.html"],
+            "args": ["./demo/index.ts", "-o", "./.temp/aaa/bbb/test.js"],
             "skipFiles": ["<node_internals>/**"],
             "type": "node"
         },

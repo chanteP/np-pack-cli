@@ -204,8 +204,8 @@ function getConfig({
 
             rules: [
                 {
-                  resourceQuery: /url/,
-                  type: 'asset/source',
+                    resourceQuery: /url/,
+                    type: 'asset/source',
                 },
                 {
                     test: /\.(vue)$/,
@@ -352,7 +352,7 @@ function getConfig({
                     analyzerPort: 0,
                 }),
             html && new DefaultHtmlPlugin({ port: html, output }),
-            isHTMLOutput && new PackHtmlPlugin({output}),
+            new PackHtmlPlugin({ output, useHTMLEntry: isHTMLOutput }),
         ].filter((d) => !!d),
         resolve: {
             alias: {

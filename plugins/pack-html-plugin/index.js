@@ -9,6 +9,7 @@ class DefaultHtmlPlugin {
     constructor(options) {
         this.htmlTemplate = fs.readFileSync(htmlTemplatePath, 'utf8');
         this.output = options.output;
+        this.useHTMLEntry = options.useHTMLEntry;
     }
 
     compileHtml(p, data) {
@@ -27,7 +28,7 @@ class DefaultHtmlPlugin {
             const resultMap = {};
 
             Object.entries(compilation.assets).forEach(([p, data]) => {
-                if (p.endsWith('.html')) {
+                if (p.endsWith('.html') && this.useHTMLEntry) {
                     resultMap[p] = this.compileHtml(p, data.source());
                 } else {
                     const fixPath = p.replace(outputPath, '');
