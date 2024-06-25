@@ -352,7 +352,7 @@ function getConfig({
                     analyzerPort: 0,
                 }),
             html && new DefaultHtmlPlugin({ port: html, output }),
-            isHTMLOutput && new PackHtmlPlugin(),
+            isHTMLOutput && new PackHtmlPlugin({output}),
         ].filter((d) => !!d),
         resolve: {
             alias: {

@@ -1,4 +1,4 @@
-const { join, resolve, basename } = require('path');
+const { join, resolve, basename, dirname, normalize } = require('path');
 const fs = require('fs');
 
 const titleHolder = '${TITLE}';
@@ -6,8 +6,9 @@ const scriptSrcHolder = '<script src="${PACK_SOURCE}"></script>';
 const htmlTemplatePath = resolve(__dirname, '../default-html-plugin/template.html');
 
 class DefaultHtmlPlugin {
-    constructor() {
+    constructor(options) {
         this.htmlTemplate = fs.readFileSync(htmlTemplatePath, 'utf8');
+        this.output = options.output;
     }
 
     compileHtml(p, data) {
@@ -18,6 +19,8 @@ class DefaultHtmlPlugin {
     }
 
     apply(compiler) {
+        const outputPath = normalize(dirname(this.output));
+
         compiler.hooks.emit.tapAsync('emit', (compilation, callback) => {
             // this.updateResources(compilation);
 
@@ -27,7 +30,8 @@ class DefaultHtmlPlugin {
                 if (p.endsWith('.html')) {
                     resultMap[p] = this.compileHtml(p, data.source());
                 } else {
-                    resultMap[p] = data.source();
+                    const fixPath = p.replace(outputPath, '');
+                    resultMap[fixPath] = data.source();
                 }
             });
 
