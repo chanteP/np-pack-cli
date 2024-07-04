@@ -2,9 +2,10 @@ const { join } = require('path');
 const service = require('./server');
 
 class DefaultHtmlPlugin {
-    constructor({ port, output }) {
+    constructor({ port, source, output }) {
         this.port = port;
         this.output = output;
+        this.source = source;
 
         this.fileContentMap = new Map();
     }
@@ -26,6 +27,7 @@ class DefaultHtmlPlugin {
     callService() {
         this.server = new service(this.port, {
             resources: this.fileContentMap,
+            source: this.source,
             output: this.output,
         });
 

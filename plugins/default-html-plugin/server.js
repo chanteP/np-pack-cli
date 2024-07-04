@@ -20,8 +20,10 @@ class Service {
 
         this.port = port;
         this.resources = options.resources;
+
+        const sourcePath = options.source;
         
-        const root = process.cwd();
+        // const root = process.cwd();
         const outputPath = path.normalize(path.dirname(options.output));
         this.entry = this.parseEntry();
 
@@ -74,7 +76,9 @@ class Service {
                         break;
                     default:
                         // static
-                        response.write(fs.readFileSync(`${root}${requestPath}`));
+                        const staticFilePath = path.join(sourcePath, `../${requestPath}`);
+                        console.log(chalk.yellow(`static file ${staticFilePath}`))
+                        response.write(fs.readFileSync(staticFilePath));
                         break;
                 }
             } catch (e) {

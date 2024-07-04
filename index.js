@@ -166,10 +166,11 @@ function getConfig({
     const isHTMLOutput = output.endsWith('.html') && !html;
     const useVueEntryTemplate = (isVueSource && html) || isHTMLOutput;
 
-    const entry = useVueEntryTemplate ? vueEntryTemplatePath : resolve(cwd, source);
+    const sourcePath = resolve(cwd, source);
+    const entry = useVueEntryTemplate ? vueEntryTemplatePath : sourcePath;
     const vueEntryAlias = useVueEntryTemplate
         ? {
-              [vueEntryHolder]: resolve(cwd, source),
+              [vueEntryHolder]: sourcePath,
           }
         : {};
 
@@ -351,7 +352,7 @@ function getConfig({
                 new BundleAnalyzerPlugin({
                     analyzerPort: 0,
                 }),
-            html && new DefaultHtmlPlugin({ port: html, output }),
+            html && new DefaultHtmlPlugin({ port: html, source: sourcePath, output }),
             new PackHtmlPlugin({ output, useHTMLEntry: isHTMLOutput }),
         ].filter((d) => !!d),
         resolve: {
